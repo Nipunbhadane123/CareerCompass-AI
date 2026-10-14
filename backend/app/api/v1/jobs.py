@@ -47,6 +47,14 @@ def match_custom_job(
 ):
     return match_custom_job_description(db, current_user, payload)
 
+@router.post("/saved", response_model=SavedJobResponse)
+def save_custom_or_tracked_job(
+    payload: SaveJobRequest,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return save_user_job(db, current_user, payload, job_id=payload.job_id)
+
 @router.post("/{job_id}/save", response_model=SavedJobResponse)
 def save_job(
     job_id: int,
@@ -54,7 +62,8 @@ def save_job(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    return save_user_job(db, current_user, job_id, payload)
+    return save_user_job(db, current_user, payload, job_id=job_id)
+
 
 @router.patch("/saved/{saved_id}", response_model=SavedJobResponse)
 def update_saved_status(

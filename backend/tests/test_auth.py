@@ -44,3 +44,16 @@ def test_get_current_user_profile(client, auth_headers):
 def test_protected_route_unauthenticated(client):
     response = client.get("/api/v1/auth/me")
     assert response.status_code == 401
+
+def test_gdpr_data_export(client, auth_headers):
+    response = client.get("/api/v1/users/export", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert "user" in data
+    assert "compliance_standard" in data
+    assert "GDPR Article 20" in data["compliance_standard"]
+    assert "resumes" in data
+    assert "career_recommendations" in data
+    assert "learning_roadmaps" in data
+    assert "saved_jobs" in data
+

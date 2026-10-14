@@ -54,4 +54,17 @@ class UserResponse(UserBase):
 
     model_config = ConfigDict(from_attributes=True)
 
+class UserDataExportResponse(BaseModel):
+    user: UserResponse
+    profile: Optional[ProfileResponse] = None
+    resumes: List[Any] = []
+    career_recommendations: List[Any] = []
+    saved_jobs: List[Any] = []
+    job_matches: List[Any] = []
+    learning_roadmaps: List[Any] = []
+    interview_sessions: List[Any] = []
+    exported_at: datetime
+    compliance_standard: str = "GDPR Article 20 - Right to Data Portability"
+
 Token.model_rebuild()
+

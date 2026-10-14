@@ -54,3 +54,20 @@ def test_save_and_track_job(client, auth_headers):
 
     del_resp = client.delete(f"/api/v1/jobs/saved/{saved_id}", headers=auth_headers)
     assert del_resp.status_code == 204
+
+def test_save_custom_job(client, auth_headers):
+    payload = {
+        "custom_title": "Lead Software Architect",
+        "custom_company": "Anthropic",
+        "custom_location": "San Francisco, CA",
+        "status": "applied",
+        "notes": "Applied on direct careers portal"
+    }
+    save_resp = client.post("/api/v1/jobs/saved", headers=auth_headers, json=payload)
+    assert save_resp.status_code == 200
+    saved = save_resp.json()
+    assert saved["custom_title"] == "Lead Software Architect"
+    assert saved["custom_company"] == "Anthropic"
+    assert saved["job_id"] is None
+    assert saved["status"] == "applied"
+

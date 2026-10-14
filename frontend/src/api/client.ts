@@ -1,8 +1,10 @@
 import {
   AuthResponse, User, Profile, Resume, ResumeAnalysis,
   CareerRole, CareerRecommendation, RoleGapAnalysis,
-  JobListing, JobMatch, SavedJob, LearningRoadmap, DashboardSummary
+  JobListing, JobMatch, SavedJob, LearningRoadmap, DashboardSummary,
+  InterviewSession, InterviewQuestion, InterviewGenerateRequest
 } from '../types';
+
 
 const API_BASE = '/api/v1';
 
@@ -76,6 +78,9 @@ export const api = {
       method: 'DELETE',
     }),
 
+  exportUserData: () => request<any>('/users/export'),
+
+
   // Resumes
   uploadResume: (file: File) => {
     const formData = new FormData();
@@ -147,6 +152,13 @@ export const api = {
       body: JSON.stringify({ status, notes }),
     }),
 
+  saveCustomJob: (payload: { custom_title?: string; custom_company?: string; custom_location?: string; status?: string; notes?: string }) =>
+    request<SavedJob>('/jobs/saved', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
+
   updateSavedJobStatus: (savedId: number, status: string, notes?: string) => {
     const params = new URLSearchParams({ status });
     if (notes) params.append('notes', notes);
@@ -183,6 +195,30 @@ export const api = {
       method: 'DELETE',
     }),
 
+  // AI Interview Preparation
+  generateInterview: (payload: InterviewGenerateRequest) =>
+    request<InterviewSession>('/interviews/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
+
+  listInterviews: () => request<InterviewSession[]>('/interviews'),
+
+  getInterviewSession: (sessionId: number) => request<InterviewSession>(`/interviews/${sessionId}`),
+
+  updateQuestionPractice: (questionId: number, update: { is_practiced?: boolean; mastery_rating?: number; user_notes?: string }) =>
+    request<InterviewQuestion>(`/interviews/questions/${questionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(update),
+    }),
+
+  deleteInterviewSession: (sessionId: number) =>
+    request<void>(`/interviews/${sessionId}`, {
+      method: 'DELETE',
+    }),
+
   // Dashboard
   getDashboardSummary: () => request<DashboardSummary>('/dashboard/summary'),
 
@@ -191,3 +227,4 @@ export const api = {
   getJobStatus: () => request<any>('/admin/jobs/status'),
   seedAdminData: () => request<any>('/admin/seed-data', { method: 'POST' }),
 };
+

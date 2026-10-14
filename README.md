@@ -24,7 +24,7 @@ CareerCompass AI is a high-quality, responsive, AI-powered career intelligence a
 3. **Job Compatibility Matching & Application Tracker**
    - Curated sample vacancies clearly badged as "Curated Demo Vacancies".
    - Custom Job Description Analyzer: Paste any external JD from LinkedIn or Indeed to calculate immediate compatibility.
-   - Multi-stage Kanban application tracker (`Saved`, `Applied`, `Interviewing`, `Offered`, `Archived`).
+   - Multi-stage Kanban application tracker (`Saved`, `Applied`, `Interviewing`, `Offered`, `Archived`) supporting both curated platform vacancies and custom external postings.
 
 4. **Personalized Learning Roadmaps**
    - Sequenced milestones that prioritize missing prerequisite competencies before advanced tools.
@@ -32,10 +32,16 @@ CareerCompass AI is a high-quality, responsive, AI-powered career intelligence a
    - Milestone capstone project challenges and direct links to curated, free documentation and courses.
    - Interactive milestone checkboxes that update roadmap progress percentages in real-time.
 
-5. **Security, Privacy & GDPR Controls**
+5. **AI Interview Readiness Studio & STAR Practice Canvas**
+   - Synthesizes tailored technical deep-dive questions, behavioral STAR prompts (Situation, Task, Action, Result), and system design scenarios mapped directly to missing skill gaps or target positions.
+   - Interactive model answers, high-impact candidate talking points, and critical anti-pattern pitfalls to avoid.
+   - Candidate practice notes sandbox, 5-star self-evaluation mastery tracking, and dynamic session readiness index.
+
+6. **Security, Privacy & GDPR Controls**
    - Bcrypt password hashing and JWT authentication with role-based access control (`user` and `admin`).
    - Strict tenant query isolation (`WHERE user_id = current_user.id`).
-   - One-click offline data export (JSON) and complete GDPR Right-to-Erasure account purging.
+   - One-click offline GDPR Article 20 data portability export (`/api/v1/users/export` full relational archive JSON) and complete Right-to-Erasure account purging.
+
 
 ---
 

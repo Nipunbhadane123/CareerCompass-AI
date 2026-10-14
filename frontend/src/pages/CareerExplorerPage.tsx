@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Compass, Search, Filter, TrendingUp, CheckCircle2,
-  AlertCircle, ArrowRight, DollarSign, Layers, Map
+  AlertCircle, ArrowRight, DollarSign, Layers, Map, MessageSquare
 } from 'lucide-react';
+
 import { api } from '../api/client';
 import { CareerRole, CareerRecommendation, RoleGapAnalysis } from '../types';
 import { Badge } from '../components/common/Badge';
@@ -189,16 +190,30 @@ export const CareerExplorerPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-6 mt-4 border-t border-canvas-border flex items-center gap-2">
+              <div className="pt-4 mt-4 border-t border-canvas-border grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={() => handleOpenGapAnalysis(role)}
-                  className="w-full py-2 px-3 rounded-xl bg-canvas-surface hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition-colors text-center"
+                  className="py-2 px-3 rounded-xl bg-canvas-surface hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-white transition-colors text-center"
                 >
-                  Diagnose Skill Gap
+                  Skill Gap
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/interviews', {
+                    state: {
+                      targetRole: role.title,
+                      skills: reqSkills
+                    }
+                  })}
+                  className="py-2 px-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-xs font-semibold text-indigo-300 transition-colors text-center flex items-center justify-center gap-1.5"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Prep Interview
                 </button>
               </div>
             </div>
+
           );
         })}
       </div>
@@ -274,16 +289,42 @@ export const CareerExplorerPage: React.FC = () => {
               </ul>
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedRole) {
+                    const roleTitle = selectedRole.title;
+                    const skills = (gapAnalysis.skills_breakdown || [])
+                      .filter((b: any) => b.status === 'Missing')
+                      .map((b: any) => b.name);
+                    setSelectedRole(null);
+                    setGapAnalysis(null);
+                    navigate('/interviews', {
+                      state: {
+                        targetRole: roleTitle,
+                        skills: skills
+                      }
+                    });
+
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-canvas-card border border-canvas-border hover:border-indigo-500/50 text-white font-semibold text-xs transition-colors"
+              >
+                <MessageSquare className="w-4 h-4 text-indigo-400" />
+                Practice Interview on Missing Gaps
+              </button>
+
               <button
                 type="button"
                 onClick={() => selectedRole && handleGenerateRoadmap(selectedRole.id)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition-all"
               >
                 <Map className="w-4 h-4" />
                 Generate Learning Roadmap
               </button>
             </div>
+
           </div>
         ) : null}
       </Modal>

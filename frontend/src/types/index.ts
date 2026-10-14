@@ -184,13 +184,18 @@ export interface JobMatch {
 export interface SavedJob {
   id: number;
   user_id: number;
-  job_id: number;
+  job_id?: number;
+  custom_title?: string;
+  custom_company?: string;
+  custom_location?: string;
+  custom_salary?: string;
   status: string;
   notes?: string;
   created_at: string;
   updated_at: string;
-  job: JobListing;
+  job?: JobListing;
 }
+
 
 export interface LearningResource {
   title: string;
@@ -271,3 +276,48 @@ export interface DashboardSummary {
     offered: number;
   };
 }
+
+export interface StarGuidance {
+  situation?: string;
+  task?: string;
+  action?: string;
+  result?: string;
+}
+
+export interface InterviewQuestion {
+  id: number;
+  session_id: number;
+  order_num: number;
+  category: string;
+  target_skill: string;
+  question_text: string;
+  suggested_answer_points: string[];
+  star_guidance?: StarGuidance;
+  pitfalls_to_avoid: string[];
+  user_notes?: string;
+  is_practiced: boolean;
+  mastery_rating: number;
+}
+
+export interface InterviewSession {
+  id: number;
+  user_id: number;
+  role_title: string;
+  company?: string;
+  difficulty: string;
+  created_at: string;
+  questions: InterviewQuestion[];
+  practiced_count?: number;
+  readiness_percentage?: number;
+}
+
+export interface InterviewGenerateRequest {
+  role_title: string;
+  company?: string;
+  difficulty?: string;
+  focus_skills?: string[];
+  role_id?: number;
+  job_id?: number;
+  question_count?: number;
+}
+

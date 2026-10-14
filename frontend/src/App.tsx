@@ -16,8 +16,10 @@ import { ResumeIntelligencePage } from './pages/ResumeIntelligencePage';
 import { CareerExplorerPage } from './pages/CareerExplorerPage';
 import { JobMatchingPage } from './pages/JobMatchingPage';
 import { LearningRoadmapPage } from './pages/LearningRoadmapPage';
+import { InterviewStudioPage } from './pages/InterviewStudioPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AdminPage } from './pages/AdminPage';
+
 
 const queryClient = new QueryClient();
 
@@ -69,8 +71,10 @@ export const App: React.FC = () => {
               <Route path="/careers" element={<CareerExplorerPage />} />
               <Route path="/jobs" element={<JobMatchingPage />} />
               <Route path="/roadmap" element={<LearningRoadmapPage />} />
+              <Route path="/interviews" element={<InterviewStudioPage />} />
               <Route path="/settings" element={<SettingsPage />} />
               <Route path="/admin" element={<AdminPage />} />
+
             </Route>
 
             {/* Fallback */}

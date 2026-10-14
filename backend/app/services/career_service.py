@@ -7,25 +7,65 @@ from app.schemas.career import (
     RoleGapAnalysisResponse, SkillGapItem
 )
 
+SKILL_ALIASES = {
+    "react.js": "react",
+    "reactjs": "react",
+    "node.js": "node.js",
+    "nodejs": "node.js",
+    "node": "node.js",
+    "vue.js": "vue",
+    "vuejs": "vue",
+    "express.js": "express",
+    "expressjs": "express",
+    "postgres": "postgresql",
+    "postgresql": "postgresql",
+    "golang": "go",
+    "c++": "c++",
+    "cpp": "c++",
+    "c#": "c#",
+    "csharp": "c#",
+    "k8s": "kubernetes",
+    "js": "javascript",
+    "ts": "typescript",
+    "py": "python",
+    "aws": "aws",
+    "amazon web services": "aws",
+    "gcp": "google cloud",
+    "google cloud": "google cloud",
+    "mongo": "mongodb",
+    "mongodb": "mongodb",
+    "fastapi": "fastapi",
+    "django": "django",
+    "docker": "docker",
+    "rest": "rest api",
+    "restful": "rest api",
+    "rest api": "rest api"
+}
+
+def normalize_skill(skill_name: str) -> str:
+    s = str(skill_name).strip().lower()
+    return SKILL_ALIASES.get(s, s)
+
 def calculate_role_compatibility(
     user_skills: List[str],
     user_exp_years: float,
     user_edu_level: str,
     role: CareerRole
 ) -> Dict[str, Any]:
-    user_skills_normalized = {s.strip().lower() for s in user_skills if isinstance(s, str)}
+    user_skills_normalized = {normalize_skill(s) for s in user_skills if isinstance(s, str)}
 
     required_skills = [rs for rs in role.skills if rs.is_required]
     preferred_skills = [rs for rs in role.skills if not rs.is_required]
 
-    req_matched = [rs.skill.name for rs in required_skills if rs.skill.name.lower() in user_skills_normalized]
-    req_missing = [rs.skill.name for rs in required_skills if rs.skill.name.lower() not in user_skills_normalized]
+    req_matched = [rs.skill.name for rs in required_skills if normalize_skill(rs.skill.name) in user_skills_normalized]
+    req_missing = [rs.skill.name for rs in required_skills if normalize_skill(rs.skill.name) not in user_skills_normalized]
 
-    pref_matched = [rs.skill.name for rs in preferred_skills if rs.skill.name.lower() in user_skills_normalized]
-    pref_missing = [rs.skill.name for rs in preferred_skills if rs.skill.name.lower() not in user_skills_normalized]
+    pref_matched = [rs.skill.name for rs in preferred_skills if normalize_skill(rs.skill.name) in user_skills_normalized]
+    pref_missing = [rs.skill.name for rs in preferred_skills if normalize_skill(rs.skill.name) not in user_skills_normalized]
 
     # Required skill match percentage
     req_pct = (len(req_matched) / max(1, len(required_skills))) * 100
+
     # Preferred skill match percentage
     pref_pct = (len(pref_matched) / max(1, len(preferred_skills))) * 100
 
@@ -154,7 +194,7 @@ def get_role_gap_analysis(
         user_exp = profile.years_of_experience or 0.0
         user_edu = profile.education_level or ""
 
-    user_skills_clean = {s.strip().lower() for s in user_skills if s}
+    user_skills_clean = {normalize_skill(s) for s in user_skills if s}
 
     breakdown = []
     matched_req = 0
@@ -164,7 +204,8 @@ def get_role_gap_analysis(
 
     for rs in role.skills:
         s_name = rs.skill.name
-        is_acquired = s_name.lower() in user_skills_clean
+        is_acquired = normalize_skill(s_name) in user_skills_clean
+
         if rs.is_required:
             total_req += 1
             if is_acquired:

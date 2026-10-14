@@ -41,17 +41,27 @@ class JobMatchResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class SaveJobRequest(BaseModel):
+    job_id: Optional[int] = None
+    custom_title: Optional[str] = None
+    custom_company: Optional[str] = None
+    custom_location: Optional[str] = None
+    custom_salary: Optional[str] = None
     status: str = "saved"  # saved, applied, interviewing, offered, rejected
     notes: Optional[str] = None
 
 class SavedJobResponse(BaseModel):
     id: int
     user_id: int
-    job_id: int
+    job_id: Optional[int] = None
+    custom_title: Optional[str] = None
+    custom_company: Optional[str] = None
+    custom_location: Optional[str] = None
+    custom_salary: Optional[str] = None
     status: str
-    notes: Optional[str]
+    notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    job: JobListingResponse
+    job: Optional[JobListingResponse] = None
 
     model_config = ConfigDict(from_attributes=True)
+

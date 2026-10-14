@@ -46,7 +46,11 @@ class SavedJob(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    job_id = Column(Integer, ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False, index=True)
+    job_id = Column(Integer, ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=True, index=True)
+    custom_title = Column(String(200), nullable=True)
+    custom_company = Column(String(200), nullable=True)
+    custom_location = Column(String(150), default="Remote", nullable=True)
+    custom_salary = Column(String(100), nullable=True)
     status = Column(String(50), default="saved")  # saved, applied, interviewing, offered, rejected
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
@@ -54,3 +58,4 @@ class SavedJob(Base):
 
     user = relationship("User", back_populates="saved_jobs")
     job = relationship("JobListing", back_populates="saved_by")
+

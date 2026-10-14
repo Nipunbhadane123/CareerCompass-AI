@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, FileText, Compass, Briefcase,
-  Map, Settings, Shield, LogOut, ChevronRight
+  Map, Settings, Shield, LogOut, ChevronRight, MessageSquare
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,8 +21,10 @@ export const Sidebar: React.FC = () => {
     { name: 'Career Explorer', path: '/careers', icon: Compass },
     { name: 'Job Matching', path: '/jobs', icon: Briefcase },
     { name: 'Learning Roadmap', path: '/roadmap', icon: Map },
+    { name: 'Interview Prep', path: '/interviews', icon: MessageSquare },
     { name: 'Settings & Privacy', path: '/settings', icon: Settings },
   ];
+
 
   if (user?.is_superuser) {
     navItems.push({ name: 'Admin Portal', path: '/admin', icon: Shield });

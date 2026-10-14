@@ -21,6 +21,8 @@ class User(Base):
     job_matches = relationship("JobMatch", back_populates="user", cascade="all, delete-orphan")
     saved_jobs = relationship("SavedJob", back_populates="user", cascade="all, delete-orphan")
     roadmaps = relationship("LearningRoadmap", back_populates="user", cascade="all, delete-orphan")
+    interview_sessions = relationship("InterviewSession", back_populates="user", cascade="all, delete-orphan")
+
 
 class Profile(Base):
     __tablename__ = "profiles"

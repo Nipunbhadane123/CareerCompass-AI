@@ -133,29 +133,45 @@ def match_custom_job_description(
 def save_user_job(
     db: Session,
     user: User,
-    job_id: int,
-    req: SaveJobRequest
+    req: SaveJobRequest,
+    job_id: Optional[int] = None
 ) -> SavedJobResponse:
-    job = db.query(JobListing).filter(JobListing.id == job_id).first()
-    if not job:
-        raise HTTPException(status_code=404, detail="Job listing not found")
+    target_job_id = job_id or req.job_id
+    if target_job_id:
+        job = db.query(JobListing).filter(JobListing.id == target_job_id).first()
+        if not job:
+            raise HTTPException(status_code=404, detail="Job listing not found")
 
-    saved = db.query(SavedJob).filter(SavedJob.user_id == user.id, SavedJob.job_id == job_id).first()
-    if not saved:
+        saved = db.query(SavedJob).filter(SavedJob.user_id == user.id, SavedJob.job_id == target_job_id).first()
+        if not saved:
+            saved = SavedJob(
+                user_id=user.id,
+                job_id=target_job_id,
+                status=req.status,
+                notes=req.notes
+            )
+            db.add(saved)
+        else:
+            saved.status = req.status
+            if req.notes is not None:
+                saved.notes = req.notes
+    else:
         saved = SavedJob(
             user_id=user.id,
-            job_id=job_id,
+            job_id=None,
+            custom_title=req.custom_title or "Target Position",
+            custom_company=req.custom_company or "Custom Employer",
+            custom_location=req.custom_location or "Remote",
+            custom_salary=req.custom_salary,
             status=req.status,
             notes=req.notes
         )
         db.add(saved)
-    else:
-        saved.status = req.status
-        if req.notes is not None:
-            saved.notes = req.notes
+
     db.commit()
     db.refresh(saved)
     return SavedJobResponse.model_validate(saved)
+
 
 def get_saved_jobs(db: Session, user: User) -> List[SavedJobResponse]:
     saved = db.query(SavedJob).filter(SavedJob.user_id == user.id).order_by(SavedJob.updated_at.desc()).all()

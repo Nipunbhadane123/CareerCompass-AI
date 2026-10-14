@@ -4,6 +4,7 @@ from app.models.resume import Resume, ResumeAnalysis
 from app.models.career import CareerRole, Skill, RoleSkill
 from app.models.job import JobListing, JobMatch, SavedJob
 from app.models.learning import LearningRoadmap, RoadmapStep
+from app.models.interview import InterviewSession, InterviewQuestion
 
 __all__ = [
     "Base",
@@ -19,4 +20,7 @@ __all__ = [
     "SavedJob",
     "LearningRoadmap",
     "RoadmapStep",
+    "InterviewSession",
+    "InterviewQuestion",
 ]
+

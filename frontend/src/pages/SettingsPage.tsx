@@ -66,21 +66,26 @@ export const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleExportData = () => {
-    const exportObject = {
-      user,
-      profile,
-      exported_at: new Date().toISOString(),
-      platform: 'CareerCompass AI',
-    };
-    const blob = new Blob([JSON.stringify(exportObject, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `careercompass-data-${user?.id || 'export'}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportData = async () => {
+    setIsExporting(true);
+    try {
+      const fullArchive = await api.exportUserData();
+      const blob = new Blob([JSON.stringify(fullArchive, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `careercompass-gdpr-archive-${user?.id || 'export'}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert(`Export failed: ${err.message}`);
+    } finally {
+      setIsExporting(false);
+    }
   };
+
 
   const handleDeleteAccount = async () => {
     if (!window.confirm('WARNING: Are you sure you want to permanently delete your account, uploaded resumes, and all associated career records? This action cannot be undone.')) {

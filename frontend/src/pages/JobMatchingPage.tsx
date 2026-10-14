@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, Search, Sparkles, CheckCircle2, AlertCircle,
-  Bookmark, BookmarkCheck, ArrowRight, Layers, FileText, Send
+  Bookmark, BookmarkCheck, ArrowRight, Layers, FileText, Send,
+  MessageSquare
 } from 'lucide-react';
 import { api } from '../api/client';
 import { JobListing, JobMatch, SavedJob } from '../types';
@@ -10,6 +12,7 @@ import { Modal } from '../components/common/Modal';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 export const JobMatchingPage: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'listings' | 'custom' | 'saved'>('listings');
   const [jobs, setJobs] = useState<JobListing[]>([]);
   const [savedJobs, setSavedJobs] = useState<SavedJob[]>([]);
@@ -19,6 +22,7 @@ export const JobMatchingPage: React.FC = () => {
   // Match modal
   const [selectedMatch, setSelectedMatch] = useState<JobMatch | null>(null);
   const [isMatching, setIsMatching] = useState(false);
+
 
   // Custom JD Form
   const [customTitle, setCustomTitle] = useState('Software Engineer');
@@ -85,6 +89,23 @@ export const JobMatchingPage: React.FC = () => {
       alert(`Save failed: ${err.message}`);
     }
   };
+
+  const handleSaveCustomMatch = async (match: JobMatch) => {
+    try {
+      const saved = await api.saveCustomJob({
+        custom_title: match.job_title,
+        custom_company: match.company,
+        custom_location: 'Remote',
+        status: 'saved',
+        notes: `Compatibility Match: ${match.compatibility_score}%`
+      });
+      setSavedJobs(prev => [saved, ...prev]);
+      alert('Custom Job added to your application tracker!');
+    } catch (err: any) {
+      alert(`Save failed: ${err.message}`);
+    }
+  };
+
 
   const handleUpdateStatus = async (savedId: number, status: string) => {
     try {
@@ -230,7 +251,7 @@ export const JobMatchingPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-6 mt-4 border-t border-canvas-border">
+                <div className="pt-4 mt-4 border-t border-canvas-border space-y-2">
                   <button
                     type="button"
                     onClick={() => handleMatchJob(job.id)}
@@ -239,7 +260,16 @@ export const JobMatchingPage: React.FC = () => {
                     <Sparkles className="w-3.5 h-3.5" />
                     Calculate Compatibility Match
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/interviews', { state: { targetRole: job.title, company: job.company, skills: job.required_skills } })}
+                    className="w-full py-2 px-3 rounded-xl bg-canvas-surface hover:bg-slate-800 text-slate-300 text-xs font-medium border border-canvas-border transition-colors flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-indigo-400" />
+                    Interview Readiness Prep
+                  </button>
                 </div>
+
               </div>
             ))}
           </div>
@@ -346,23 +376,58 @@ export const JobMatchingPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <h4 className="text-base font-bold text-white">{item.job.title}</h4>
-                      <p className="text-xs text-slate-400">{item.job.company} • {item.job.location}</p>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Badge variant={item.job_id ? "cyan" : "secondary"}>
+                          {item.job_id ? (item.job?.domain || "Vacancy") : "Custom JD Match"}
+                        </Badge>
+                      </div>
+
+                      <h4 className="text-base font-bold text-white">
+                        {item.job?.title || item.custom_title || 'Target Role'}
+                      </h4>
+                      <p className="text-xs text-slate-400">
+                        {item.job?.company || item.custom_company || 'Employer'} • {item.job?.location || item.custom_location || 'Remote'}
+                      </p>
                     </div>
 
-                    <p className="text-xs text-slate-300 line-clamp-2">{item.job.description}</p>
+                    {item.job?.description && (
+                      <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed">{item.job.description}</p>
+                    )}
+                    {item.notes && (
+                      <p className="text-xs text-indigo-300/90 bg-canvas-surface/80 p-2.5 rounded-xl border border-canvas-border">
+                        {item.notes}
+                      </p>
+                    )}
                   </div>
 
                   <div className="pt-3 border-t border-canvas-border flex items-center justify-between text-[11px] text-slate-500">
                     <span>Saved: {new Date(item.created_at).toLocaleDateString()}</span>
-                    <button
-                      onClick={() => handleMatchJob(item.job_id)}
-                      className="text-indigo-400 hover:text-indigo-300 font-semibold"
-                    >
-                      Match Score
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => navigate('/interviews', {
+                          state: {
+                            targetRole: item.job?.title || item.custom_title || 'Target Role',
+                            company: item.job?.company || item.custom_company || 'Employer',
+                            skills: item.job?.required_skills || []
+                          }
+                        })}
+                        className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1"
+                      >
+                        <MessageSquare className="w-3 h-3" />
+                        Interview Prep
+                      </button>
+                      {item.job_id && (
+                        <button
+                          onClick={() => handleMatchJob(item.job_id!)}
+                          className="text-slate-400 hover:text-white font-medium"
+                        >
+                          Match
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
+
               ))}
             </div>
           ) : (
@@ -433,9 +498,47 @@ export const JobMatchingPage: React.FC = () => {
                 ))}
               </ul>
             </div>
+
+            {/* Modal Actions */}
+            <div className="pt-4 border-t border-canvas-border flex flex-col sm:flex-row items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  if (selectedMatch.job_id) {
+                    handleSaveJob(selectedMatch.job_id);
+                  } else {
+                    handleSaveCustomMatch(selectedMatch);
+                  }
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-canvas-card border border-canvas-border hover:border-indigo-500/50 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors"
+              >
+                <Bookmark className="w-3.5 h-3.5 text-indigo-400" />
+                Save to Application Tracker
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const targetMatch = selectedMatch;
+                  setSelectedMatch(null);
+                  navigate('/interviews', {
+                    state: {
+                      targetRole: targetMatch.job_title,
+                      company: targetMatch.company,
+                      skills: targetMatch.missing_skills.length > 0 ? targetMatch.missing_skills : targetMatch.matched_skills
+                    }
+                  });
+                }}
+                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2 transition-all"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                Practice Interview for this Role
+              </button>
+            </div>
           </div>
         )}
       </Modal>
+
     </div>
   );
 };
